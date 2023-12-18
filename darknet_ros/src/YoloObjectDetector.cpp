@@ -181,8 +181,9 @@ void YoloObjectDetector::init()
   it_ = std::make_shared<image_transport::ImageTransport>(shared_from_this());
   
   using std::placeholders::_1;
-  imageSubscriber_ = it_->subscribe(cameraTopicName, cameraQueueSize,
-    std::bind(&YoloObjectDetector::cameraCallback, this, _1));
+  imageSubscriber_ = image_transport::create_subscription(
+      this, cameraTopicName, std::bind(&YoloObjectDetector::cameraCallback, this, _1), "raw",
+      rclcpp::SensorDataQoS().keep_last(cameraQueueSize).get_rmw_qos_profile());
 
   rclcpp::QoS object_publisher_qos(objectDetectorQueueSize);
   if (objectDetectorLatch) {
